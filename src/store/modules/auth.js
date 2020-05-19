@@ -23,33 +23,32 @@ const actions = {
   // singup a user
 
   async signup({ commit, dispatch }, payload) {
-    console.log('labas');
-    // commit('setUserLoading', true);
+    commit('setUserLoading', true);
 
-    // const config = {
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // };
-    // const body = JSON.stringify(payload);
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    const body = JSON.stringify(payload);
 
-    // try {
-    //   const res = await axios.post(
-    //     'http://localhost:8888/api/v1/user',
-    //     body,
-    //     config
-    //   );
+    try {
+      const res = await axios.post(
+        'http://localhost:8888/api/v1/user',
+        body,
+        config
+      );
 
-    //   commit('setToken', res.data.access_token);
-    //   commit('setUserLoading', false);
-    //   setTimeout(() => dispatch('profile/createProfile', null, { root: true }), 2000)
-    // } catch (err) {
-    //   const error = {
-    //     msg: err.response.data.msg,
-    //     type: 'fail'
-    //   };
-    //   dispatch('feedback/setFeedback', error, { root: true });
-    // }
+      commit('setToken', res.data.access_token);
+      commit('setUserLoading', false);
+      setTimeout(() => dispatch('profile/createProfile', null, { root: true }), 2000)
+    } catch (err) {
+      const error = {
+        msg: err.response.data.msg,
+        type: 'fail'
+      };
+      dispatch('feedback/setFeedback', error, { root: true });
+    }
   },
 
   // singin a user
