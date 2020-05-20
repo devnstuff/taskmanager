@@ -45,7 +45,7 @@ const actions = {
   },
   async getProfile({ commit, dispatch }) {
     try {
-      let res = await axios.get('http://localhost:8888/api/v1/profile/');
+      let res = await axios.get('http://localhost:8888/api/v1/profile');
 
       commit('setProfile', res.data.data);
       dispatch('profile/getProjects', null, { root: true })
@@ -67,7 +67,7 @@ const actions = {
     let body = JSON.stringify(payload);
 
     try {
-      await axios.put('http://localhost:8888/api/v1/projects', body, config);
+      await axios.put('http://localhost:8888/api/v1/profile/projects', body, config);
 
       dispatch('profile/getProfile', null, { root: true });
 
@@ -81,7 +81,7 @@ const actions = {
   },
   async getProjects({ dispatch, commit }) {
     try {
-      let res = await axios.get('http://localhost:8888/api/v1/projects')
+      let res = await axios.get('http://localhost:8888/api/v1/profile/projects')
       let active = res.data.data.filter(a => !a.archived)
       let inactive = res.data.data.filter(b => b.archived)
 
@@ -90,17 +90,16 @@ const actions = {
       dispatch('profile/getAllTasks', null, { root: true });
 
     } catch (err) {
-      console.log(err.message);
-      // let error = {
-      //   msg: err.response.data.msg,
-      //   type: 'fail'
-      // };
-      // dispatch('feedback/setFeedback', error, { root: true });
+      let error = {
+        msg: err.response.data.msg,
+        type: 'fail'
+      };
+      dispatch('feedback/setFeedback', error, { root: true });
     }
   },
   async getProjectById({ dispatch, commit }, payload) {
     try {
-      let res = await axios.get(`http://localhost:8888/api/v1/projects/${payload}`);
+      let res = await axios.get(`http://localhost:8888/api/v1/profile/projects/${payload}`);
       console.log(res)
 
       commit('filterProject', res.data.data);
@@ -108,8 +107,7 @@ const actions = {
       dispatch('profile/getComments', payload, { root: true })
 
     } catch (err) {
-      // dispatch('feedback/setFeedback', err.message, { root: true });
-      console.log('')
+      dispatch('feedback/setFeedback', err.response.data.msg, { root: true });
     }
   },
   async erchiveProject({ dispatch }, payload) {
@@ -120,7 +118,7 @@ const actions = {
     }
     let body = JSON.stringify({ archived: true })
     try {
-      await axios.put(`http://localhost:8888/api/v1/projects/${payload}`, body, config)
+      await axios.put(`http://localhost:8888/api/v1/profile/projects/${payload}`, body, config)
 
       dispatch('profile/getProfile', null, { root: true })
 
@@ -140,7 +138,7 @@ const actions = {
     }
     let body = JSON.stringify({ archived: false })
     try {
-      await axios.put(`http://localhost:8888/api/v1/projects/${payload}`, body, config)
+      await axios.put(`http://localhost:8888/api/v1/profile/projects/${payload}`, body, config)
 
       dispatch('profile/getProfile', null, { root: true })
 
@@ -154,7 +152,7 @@ const actions = {
   },
   async deleteProject({ dispatch }, payload) {
     try {
-      await axios.delete(`http://localhost:8888/api/v1/projects/${payload}`);
+      await axios.delete(`http://localhost:8888/api/v1/profile/projects/${payload}`);
 
       dispatch('profile/getProfile', null, { root: true })
     } catch (err) {
@@ -167,7 +165,7 @@ const actions = {
   },
   async getTasks({ dispatch, commit }, payload) {
     try {
-      let res = await axios.get(`http://localhost:8888/api/v1/projects/${payload}/tasks/`)
+      let res = await axios.get(`http://localhost:8888/api/v1/profile/projects/${payload}/tasks`)
       let active = res.data.data.filter(a => a.isActive)
       let inactive = res.data.data.filter(b => !b.isActive)
 
@@ -182,9 +180,9 @@ const actions = {
       dispatch('feedback/setFeedback', error, { root: true });
     }
   },
-  async getAllTasks({ commit }) {
+  async getAllTasks({ commit, dispatch }) {
     try {
-      let res = await axios.get('projects');
+      let res = await axios.get('http://localhost:8888/api/v1/profile/projects');
       let tasks = [];
       let activeProjects = res.data.data.filter(s => s.archived === false);
       activeProjects.map(i => i.tasks.map(a => tasks.push(a)));
@@ -199,10 +197,11 @@ const actions = {
       commit('setCompletedTasks', completedTasks)
 
     } catch (err) {
-
-      if (err) console.log(err.message)
-
-      // dispatch('feedback/setFeedback', error, { root: true });
+      let error = {
+        msg: err.response.data.msg,
+        type: 'fail'
+      };
+      dispatch('feedback/setFeedback', error, { root: true });
     }
   },
   async createTask({ dispatch, commit }, payload) {
@@ -223,7 +222,7 @@ const actions = {
     let body = JSON.stringify(newTask);
 
     try {
-      await axios.post(`http://localhost:8888/api/v1/projects/${payload.id}/task`, body, config);
+      await axios.post(`http://localhost:8888/api/v1/profile/projects/${payload.id}/task`, body, config);
 
       dispatch('profile/getTasks', payload.id, { root: true })
       dispatch('profile/getAllTasks', null, { root: true })
@@ -245,7 +244,7 @@ const actions = {
     let body = JSON.stringify({ isActive: payload.status })
 
     try {
-      await axios.put(`http://localhost:8888/api/v1/projects/${payload.id}/tasks/${payload.task}`,
+      await axios.put(`http://localhost:8888/api/v1/profile/projects/${payload.id}/tasks/${payload.task}`,
         body, config);
 
       dispatch('profile/getTasks', payload.id, { root: true })
@@ -261,7 +260,7 @@ const actions = {
   },
   async getComments({ dispatch, commit }, payload) {
     try {
-      let res = await axios.get(`http://localhost:8888/api/v1/projects/${payload}/comments/`)
+      let res = await axios.get(`http://localhost:8888/api/v1/profile/projects/${payload}/comments`)
 
       commit('setComments', res.data.data)
 
@@ -282,7 +281,7 @@ const actions = {
     let body = JSON.stringify({ body: payload.body })
 
     try {
-      await axios.post(`http://localhost:8888/api/v1/projects/${payload.id}/comment`, body, config)
+      await axios.post(`http://localhost:8888/api/v1/profile/projects/${payload.id}/comment`, body, config)
 
       dispatch('profile/getComments', payload.id, { root: true })
 
@@ -297,7 +296,7 @@ const actions = {
   },
   async deleteComment({ dispatch }, payload) {
     try {
-      await axios.delete(`http://localhost:8888/api/v1/projects/${payload.id}/comments/${payload.comment}`)
+      await axios.delete(`http://localhost:8888/api/v1/profile/projects/${payload.id}/comments/${payload.comment}`)
 
       dispatch('profile/getComments', payload.id, { root: true })
 

@@ -57,7 +57,7 @@
                 </a>
               </p>
             </div>
-            <v-btn @click="onSubmit">Submit</v-btn>
+            <v-btn @click="submit">Submit</v-btn>
           </div>
         </div>
       </div>
@@ -98,12 +98,21 @@ export default {
     }
   },
   methods: {
+    ...mapActions("feedback", ["setFeedback"]),
     ...mapActions(["signup"]),
-    onSubmit() {
+    submit() {
       if (!this.email && !this.password && !this.confirmPassword) {
+        this.setFeedback({ msg: "All fields should be filled", type: "fail" });
       } else if (this.password.length < 8) {
+        this.setFeedback({
+          msg: "Password should be at least 8 characters length",
+          type: "fail"
+        });
       } else if (this.password !== this.confirmPassword) {
-      } else if (!this.isChecked) {
+        this.setFeedback({
+          msg: "Password does not match",
+          type: "fail"
+        });
       } else {
         this.signup({
           email: this.email,
